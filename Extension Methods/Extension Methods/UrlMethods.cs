@@ -32,7 +32,7 @@ namespace Extension_Methods
 
         public static List<string> GetWebDirectory(this Uri uri)
         {
-            var Files = new List<string>();
+            var files = new List<string>();
             var request = (HttpWebRequest)WebRequest.Create(uri);
             using (var response = (HttpWebResponse)request.GetResponse())
             {
@@ -45,11 +45,11 @@ namespace Extension_Methods
                     var matches = regex.Matches(html);
                     if (matches.Count > 0)
                     {
-                        Files.AddRange(matches.Cast<Match>().Where(match => match.Success).Select(match => match.ToString()));
+                        files.AddRange(matches.Cast<Match>().Where(match => match.Success).Select(match => match.ToString()));
                     }
                 }
             }
-            return Files;
+            return files;
         }
 
         public static string GetPageTitle(this Uri uri)
@@ -81,7 +81,8 @@ namespace Extension_Methods
                             title = m.Groups[1].Value;
                             break;
                         }
-                        else if (contents.Contains("</head>"))
+
+                        if (contents.Contains("</head>"))
                         {
                             // reached end of head-block; no title found =[
                             break;
@@ -99,7 +100,7 @@ namespace Extension_Methods
 
         public static List<string> GetUrlSourceAsList(this Uri uri)
         {
-            var temp = "check_file.txt";
+            const string temp = "check_file.txt";
             var c = File.CreateText(temp);
 
             c.Close();

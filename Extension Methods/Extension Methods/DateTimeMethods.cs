@@ -136,13 +136,9 @@ namespace Extension_Methods
 
         public static bool ToTimeSpanLegacy(this string str, ref TimeSpan result)
         {
-            if (str.Length > 1)
-            {
-                result = new TimeSpan(long.Parse(str) * TicksPerMillisecond);
-                return true;
-            }
-
-            return false;
+            if (str.Length <= 1) return false;
+            result = new TimeSpan(long.Parse(str) * TicksPerMillisecond);
+            return true;
         }
 
 
@@ -190,11 +186,16 @@ namespace Extension_Methods
             }
             catch (ArgumentException)
             {
+
             }
             catch (OverflowException)
             {
+
             }
-            catch (FormatException) { }
+            catch (FormatException)
+            {
+
+            }
             result = TimeSpan.Zero;
             return false;
         }
@@ -290,25 +291,22 @@ namespace Extension_Methods
                 return false;
             }
 
-            if (!DateTime.TryParse(dateString, _cultureInfo, DateTimeStyles.None, out date))
+            if (DateTime.TryParse(dateString, _cultureInfo, DateTimeStyles.None, out date)) return true;
+            CultureInfo[] cultureList = CultureInfo.GetCultures(CultureTypes.FrameworkCultures);
+            foreach (CultureInfo otherCultureInfo in cultureList)
             {
-                CultureInfo[] cultureList = CultureInfo.GetCultures(CultureTypes.FrameworkCultures);
-                foreach (CultureInfo otherCultureInfo in cultureList)
+                _cultureInfo = otherCultureInfo;
+                try
                 {
-                    _cultureInfo = otherCultureInfo;
-                    try
+                    if (DateTime.TryParse(dateString, _cultureInfo, DateTimeStyles.None, out date))
                     {
-                        if (DateTime.TryParse(dateString, _cultureInfo, DateTimeStyles.None, out date))
-                        {
-                            return true;
-                        }
+                        return true;
                     }
-                    catch (NotSupportedException) { }
                 }
-                throw new Exception("Could not find a culture that would be able to parse date/time formats.");
+                catch (NotSupportedException) { }
             }
+            throw new Exception("Could not find a culture that would be able to parse date/time formats.");
 
-            return true;
         }
     }
 }
